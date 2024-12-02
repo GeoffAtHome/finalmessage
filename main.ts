@@ -1,3 +1,8 @@
+function showCharacter (thisID: number, thisCharacter: string, thisDelay: number) {
+    basic.clearScreen()
+    basic.pause(thisDelay * thisID)
+    basic.showString(thisCharacter)
+}
 input.onButtonPressed(Button.A, function () {
     delay = delay1
     radio.sendValue("Delay", delay)
@@ -6,20 +11,14 @@ input.onButtonPressed(Button.A, function () {
 })
 function DisplayMessage (thisID: number, thisMessage: string, thisDelay: number) {
     if (thisMessage.charAt(1) != "^") {
-        basic.clearScreen()
-        basic.pause(thisDelay * thisID)
-        basic.showString(thisMessage.charAt(thisID))
+        showCharacter(thisID, thisMessage.charAt(thisID), thisDelay)
     } else if (thisID < 16) {
         if (thisMessage.charAt(0) == "1") {
-            basic.clearScreen()
-            basic.pause(thisDelay * thisID)
-            basic.showString(thisMessage.charAt(thisID + 2))
+            showCharacter(thisID, thisMessage.charAt(thisID + 2), thisDelay)
         }
     } else {
         if (thisMessage.charAt(0) == "2") {
-            basic.clearScreen()
-            basic.pause(thisDelay * thisID)
-            basic.showString(thisMessage.charAt(thisID - 14))
+            showCharacter(thisID, thisMessage.charAt(thisID - 14), thisDelay)
         }
     }
 }
@@ -42,7 +41,7 @@ function SplitMessageAndSend (thisMessage: string) {
     radio.sendString("2^" + thisMessage.substr(16, 16))
 }
 serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-    radio.sendString(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
+    SplitMessageAndSend(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
 })
 let delay = 0
 let delay2 = 0
@@ -50,7 +49,7 @@ let delay1 = 0
 let msg2 = ""
 let msg1 = ""
 let MyID = 0
-MyID = 15
+MyID = 18
 msg1 = "012345678901234XYZ890"
 msg2 = "012345678901234XYZ890"
 radio.setGroup(1)
