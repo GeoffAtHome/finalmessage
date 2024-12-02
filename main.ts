@@ -5,16 +5,20 @@ input.onButtonPressed(Button.A, function () {
     DisplayMessage(MyID, msg1, delay)
 })
 function DisplayMessage (thisID: number, thisMessage: string, thisDelay: number) {
-    basic.clearScreen()
-    basic.pause(thisDelay * thisID)
     if (thisMessage.charAt(1) != "^") {
+        basic.clearScreen()
+        basic.pause(thisDelay * thisID)
         basic.showString(thisMessage.charAt(thisID))
-    } else if (16 == thisID) {
+    } else if (thisID < 16) {
         if (thisMessage.charAt(0) == "1") {
-            basic.showString(thisMessage.charAt(2 + thisID))
+            basic.clearScreen()
+            basic.pause(thisDelay * thisID)
+            basic.showString(thisMessage.charAt(thisID + 2))
         }
     } else {
         if (thisMessage.charAt(0) == "2") {
+            basic.clearScreen()
+            basic.pause(thisDelay * thisID)
             basic.showString(thisMessage.charAt(thisID - 14))
         }
     }
@@ -46,9 +50,9 @@ let delay1 = 0
 let msg2 = ""
 let msg1 = ""
 let MyID = 0
-MyID = 24
-msg1 = "Nadoligllawen***PwllCoch"
-msg2 = "                        "
+MyID = 15
+msg1 = "012345678901234XYZ890"
+msg2 = "012345678901234XYZ890"
 radio.setGroup(1)
 basic.showNumber(MyID)
 delay1 = 0
