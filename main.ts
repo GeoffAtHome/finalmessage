@@ -1,13 +1,23 @@
 input.onButtonPressed(Button.A, function () {
     delay = delay1
     radio.sendValue("Delay", delay)
-    radio.sendString(msg1)
+    SplitMessageAndSend(msg1)
     DisplayMessage(MyID, msg1, delay)
 })
 function DisplayMessage (thisID: number, thisMessage: string, thisDelay: number) {
     basic.clearScreen()
     basic.pause(thisDelay * thisID)
-    basic.showString(thisMessage.charAt(thisID))
+    if (thisMessage.charAt(1) != "^") {
+        basic.showString(thisMessage.charAt(thisID))
+    } else if (16 == thisID) {
+        if (thisMessage.charAt(0) == "1") {
+            basic.showString(thisMessage.charAt(2 + thisID))
+        }
+    } else {
+        if (thisMessage.charAt(0) == "2") {
+            basic.showString(thisMessage.charAt(thisID - 14))
+        }
+    }
 }
 radio.onReceivedString(function (receivedString) {
     DisplayMessage(MyID, receivedString, delay)
@@ -15,7 +25,7 @@ radio.onReceivedString(function (receivedString) {
 input.onButtonPressed(Button.B, function () {
     delay = delay2
     radio.sendValue("Delay", delay)
-    radio.sendString(msg2)
+    SplitMessageAndSend(msg2)
     DisplayMessage(MyID, msg2, delay)
 })
 radio.onReceivedValue(function (name, value) {
@@ -23,6 +33,10 @@ radio.onReceivedValue(function (name, value) {
         delay = value
     }
 })
+function SplitMessageAndSend (thisMessage: string) {
+    radio.sendString("1^" + thisMessage.substr(0, 16))
+    radio.sendString("2^" + thisMessage.substr(16, 16))
+}
 serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
     radio.sendString(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
 })
@@ -32,9 +46,9 @@ let delay1 = 0
 let msg2 = ""
 let msg1 = ""
 let MyID = 0
-MyID = 0
-msg1 = "Zero"
-msg2 = "ZERO"
+MyID = 24
+msg1 = "Nadoligllawen***PwllCoch"
+msg2 = "                        "
 radio.setGroup(1)
 basic.showNumber(MyID)
 delay1 = 0

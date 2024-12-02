@@ -1,5 +1,5 @@
 {
-    "name": "FinalMessage",
+    "name": "MsgV2",
     "description": "",
     "dependencies": {
         "core": "*",
