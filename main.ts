@@ -1,78 +1,94 @@
+function SetMode () {
+    if (mode == 0) {
+        delay = 0
+        scroll = 0
+    } else if (mode == 1) {
+        delay = 400
+        scroll = 0
+    } else if (mode == 2) {
+        delay = 0
+        scroll = 200
+    } else {
+        delay = 400
+        scroll = 200
+    }
+}
 input.onButtonPressed(Button.A, function () {
-    delay = delay1
-    radio.sendValue("Delay", delay)
     SplitMessageAndSend(msg1)
-    DisplayMessage(MyID, msg1, delay)
 })
-function ProcessMessage (thisID: number, thisMessage: string, thisDelay: number) {
+function ProcessMessage (thisMessage: string) {
     if (thisMessage.charAt(1) == "^") {
         if (thisMessage.charAt(0) == "0") {
-            messagePart1 = ""
+            message = "" + message + thisMessage.substr(2, 19)
         } else if (thisMessage.charAt(0) == "1") {
-            messagePart1 = "" + messagePart1 + thisMessage.substr(2, 19)
-        } else {
-            DisplayMessage(thisID, messagePart1, thisDelay)
+            DisplayMessage(message)
+            message = ""
         }
     }
 }
-function DisplayMessage (thisId: number, thisMessage2: string, thisDelay2: number) {
+function DisplayMessage (thisMessage: string) {
     basic.clearScreen()
-    basic.pause(thisId * thisDelay2)
-    loop = 1 + (thisMessage2.length - thisId)
-    index = thisId
+    basic.pause(MyID * delay)
+    if (scroll == 0) {
+        loop = 1
+    } else {
+        loop = 1 + (thisMessage.length - MyID)
+    }
+    index = MyID
     for (let index2 = 0; index2 < loop; index2++) {
-        basic.showString(thisMessage2.charAt(index))
+        basic.showString(thisMessage.charAt(index))
+        basic.pause(scroll)
         index += 1
     }
 }
+input.onButtonPressed(Button.AB, function () {
+    mode += 1
+    if (mode == 4) {
+        mode = 0
+    }
+    radio.sendValue("Mode", mode)
+    SetMode()
+    basic.showString("" + String.fromCharCode("0".charCodeAt(0) + mode) + " Mode")
+})
 radio.onReceivedString(function (receivedString) {
-    ProcessMessage(MyID, receivedString, delay)
+    ProcessMessage(receivedString)
 })
 input.onButtonPressed(Button.B, function () {
-    delay = delay2
-    radio.sendValue("Delay", delay)
     SplitMessageAndSend(msg2)
-    DisplayMessage(MyID, msg2, delay)
 })
 radio.onReceivedValue(function (name, value) {
-    if (name == "Delay") {
-        delay = value
+    if (name == "Mode") {
+        mode = value
+        SetMode()
     }
 })
-function SplitMessageAndSend (thisMessage3: string) {
-    loop = thisMessage3.length
+function SplitMessageAndSend (thisMessage: string) {
+    loop = thisMessage.length
     index = 0
-    radio.sendString("0^")
     while (index <= loop) {
-        radio.sendString("1^" + thisMessage3.substr(index, 16))
+        radio.sendString("0^" + thisMessage.substr(index, 16))
         index += 16
     }
-    radio.sendString("2^")
+    radio.sendString("1^")
+    DisplayMessage(thisMessage)
 }
 serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-    messagePart1 = serial.readUntil(serial.delimiters(Delimiters.NewLine))
-    SplitMessageAndSend(messagePart1)
-    DisplayMessage(MyID, messagePart1, delay)
+    message = serial.readUntil(serial.delimiters(Delimiters.NewLine))
+    SplitMessageAndSend(message)
 })
 let index = 0
 let loop = 0
-let messagePart1 = ""
+let message = ""
+let scroll = 0
 let delay = 0
-let delay2 = 0
-let delay1 = 0
+let mode = 0
 let msg2 = ""
 let msg1 = ""
 let MyID = 0
-MyID = 0
+MyID = 3
 msg1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 msg2 = "End"
 radio.setGroup(1)
 basic.showNumber(MyID)
-delay1 = 0
-delay2 = 400
-delay = delay1
-serial.redirect(
-SerialPin.USB_TX,
-SerialPin.USB_RX,
-BaudRate.BaudRate115200
-)
+mode = 0
+SetMode()
